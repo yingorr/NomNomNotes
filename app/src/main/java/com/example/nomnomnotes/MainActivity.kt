@@ -30,11 +30,13 @@ class MainActivity : ComponentActivity() {
 
 @Preview
 @Composable
-fun RecipeScreen(modifier: Modifier = Modifier) {
+fun RecipeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: RecipeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
 
     var recipeName by remember { mutableStateOf("") }
     var ingredients by remember { mutableStateOf("") }
-    var recipes by remember { mutableStateOf(listOf<String>()) }
 
     Column(
         modifier = modifier
@@ -63,8 +65,7 @@ fun RecipeScreen(modifier: Modifier = Modifier) {
         Button(
             onClick = {
                 if (recipeName.isNotBlank() && ingredients.isNotBlank()) {
-                    val newRecipe = "$recipeName\nIngredients: $ingredients"
-                    recipes = recipes + newRecipe
+                    viewModel.addRecipe(recipeName, ingredients)
                     recipeName = ""
                     ingredients = ""
                 }
@@ -77,16 +78,17 @@ fun RecipeScreen(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn {
-            items(recipes) { recipe ->
+            items(viewModel.recipes) { recipe ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                 ) {
-                    Text(
-                        text = recipe,
-                        modifier = Modifier.padding(12.dp)
-                    )
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(text = recipe.name, style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = "Tap to view ingredients")
+                    }
                 }
             }
         }
